@@ -17,7 +17,7 @@ namespace Shops.API.Controllers
     public class ShopsController : ControllerBase
     {
         private readonly IBusControl _busControl;
-        private readonly Uri _rabbitMqUrl = new Uri("rabbitmq://localhost/shopsQueue");
+        private readonly Uri _rabbitMqUrl = new Uri("rabbitmq://rabbit/shopsQueue");
         public ShopsController(IBusControl busControl)
         {
             _busControl = busControl;
