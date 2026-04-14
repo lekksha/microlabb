@@ -1,4 +1,3 @@
-using GreenPipes;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using RtuItLab.Infrastructure.Filters;
 using RtuItLab.Infrastructure.Middlewares;
 using Shops.API.Consumers;
@@ -50,7 +48,6 @@ namespace Shops.API
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
-
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
                     {
@@ -70,13 +67,13 @@ namespace Shops.API
                     }
                 });
             });
+            // FIX: убран ServiceLifetime.Transient
             services.AddDbContext<ShopsDbContext>(
-                option => option.UseSqlServer(Configuration["DefaultConnection"]), ServiceLifetime.Transient);
+                option => option.UseSqlServer(Configuration["DefaultConnection"]));
             services.AddScoped<IShopsService, ShopsService>();
-          
+            // FIX: убраны GreenPipes, ConfigureJsonSerializer/Deserializer, AddMassTransitHostedService
             services.AddMassTransit(x =>
             {
-                // Shops
                 x.AddConsumer<BuyProducts>();
                 x.AddConsumer<GetAllShops>();
                 x.AddConsumer<GetProductsByCategory>();
@@ -84,49 +81,34 @@ namespace Shops.API
                 x.AddConsumer<AddProductsByFactory>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                                        cfg.Host(new Uri("rabbitmq://rabbit/"));
+                    cfg.Host(new Uri("rabbitmq://rabbit/"));
                     cfg.ReceiveEndpoint("shopsQueue", e =>
                     {
                         e.PrefetchCount = 20;
                         e.UseMessageRetry(r => r.Interval(2, 100));
-
-                        // Shops
                         e.Consumer<BuyProducts>(context);
                         e.Consumer<GetAllShops>(context);
                         e.Consumer<GetProductsByCategory>(context);
                         e.Consumer<GetProductsByShop>(context);
                         e.Consumer<AddProductsByFactory>(context);
                     });
-                    cfg.ConfigureJsonSerializer(settings =>
-                    {
-                        settings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-
-                        return settings;
-                    });
-                    cfg.ConfigureJsonDeserializer(configure =>
-                    {
-                        configure.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-                        return configure;
-                    });
                 });
             });
-            services.AddMassTransitHostedService();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-
             app.UseSwagger()
                 .UseSwaggerUI(c =>
-                              {
-                                  c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shops.API V1");
-                              }
-                             );
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shops.API V1");
+                });
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseMiddleware<JwtMiddleware>();
-
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

@@ -131,6 +131,30 @@
       ],
       "UpstreamPathTemplate": "/api/shops/{shopId}/order",
       "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Factories/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "factoriesapi",
+          "Port": 7004
+        }
+      ],
+      "UpstreamPathTemplate": "/api/factories/",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Factories/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "factoriesapi",
+          "Port": 7004
+        }
+      ],
+      "UpstreamPathTemplate": "/api/factories/{id}",
+      "UpstreamHttpMethod": [ "Get" ]
     }
   ],
   "GlobalConfiguration": {

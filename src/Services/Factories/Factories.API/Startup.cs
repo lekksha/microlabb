@@ -1,3 +1,4 @@
+using Factories.API.BackgroundService;
 using Factories.DAL.Data;
 using Factories.Domain.Services;
 using MassTransit;
@@ -8,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 using System;
 
 namespace Factories.API
@@ -24,29 +24,19 @@ namespace Factories.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // FIX: убран ServiceLifetime.Transient
             services.AddDbContext<FactoriesDbContext>(options =>
-                options.UseSqlServer(Configuration["DefaultConnection"]), ServiceLifetime.Transient);
+                options.UseSqlServer(Configuration["DefaultConnection"]));
             services.AddScoped<IFactoriesService, FactoriesService>();
+            // FIX: убраны ConfigureJsonSerializer/Deserializer, AddMassTransitHostedService
             services.AddMassTransit(x =>
             {
                 x.UsingRabbitMq((context, cfg) =>
                 {
-
-                                        cfg.Host(new Uri("rabbitmq://rabbit/"));
-                    cfg.ConfigureJsonSerializer(settings =>
-                    {
-                        settings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-
-                        return settings;
-                    });
-                    cfg.ConfigureJsonDeserializer(configure =>
-                    {
-                        configure.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-                        return configure;
-                    });
+                    cfg.Host(new Uri("rabbitmq://rabbit/"));
                 });
             });
-            services.AddMassTransitHostedService();
+            services.AddHostedService<UpdateShopsTimedHostedService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -62,7 +52,7 @@ namespace Factories.API
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Hello World!");
+                    await context.Response.WriteAsync("Factories API is running");
                 });
             });
         }

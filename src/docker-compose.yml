@@ -26,26 +26,11 @@ services:
     volumes:
       - sqlserver_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$$SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$SA_PASSWORD\" -Q 'SELECT 1' -No -b -o /dev/null 2>/dev/null || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$$SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
       interval: 15s
       timeout: 10s
       retries: 10
-      start_period: 40s
-    restart: unless-stopped
-
-  apigateway:
-    image: microlabb/apigateway
-    build:
-      context: .
-      dockerfile: RtuItLab.ApiGateway/Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-    depends_on:
-      - identityapi
-      - purchasesapi
-      - shopsapi
+      start_period: 60s
     restart: unless-stopped
 
   identityapi:
@@ -57,13 +42,20 @@ services:
       - "7001:7001"
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-      - DefaultConnection=Server=db;Database=identity;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};
+      - ASPNETCORE_URLS=http://+:7001
+      - DefaultConnection=Server=db;Database=identity;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};TrustServerCertificate=True;
       - Secret=${JWT_SECRET:-7c9e6679-7425-40de-944b-e07fc1f90ae6}
     depends_on:
       db:
         condition: service_healthy
       rabbit:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7001/swagger/index.html > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   purchasesapi:
@@ -75,12 +67,20 @@ services:
       - "7002:7002"
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-      - DefaultConnection=Server=db;Database=purchases;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};
+      - ASPNETCORE_URLS=http://+:7002
+      - DefaultConnection=Server=db;Database=purchases;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};TrustServerCertificate=True;
+      - Secret=${JWT_SECRET:-7c9e6679-7425-40de-944b-e07fc1f90ae6}
     depends_on:
       db:
         condition: service_healthy
       rabbit:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7002/swagger/index.html > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   shopsapi:
@@ -92,12 +92,20 @@ services:
       - "7003:7003"
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-      - DefaultConnection=Server=db;Database=shops;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};
+      - ASPNETCORE_URLS=http://+:7003
+      - DefaultConnection=Server=db;Database=shops;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};TrustServerCertificate=True;
+      - Secret=${JWT_SECRET:-7c9e6679-7425-40de-944b-e07fc1f90ae6}
     depends_on:
       db:
         condition: service_healthy
       rabbit:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7003/swagger/index.html > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   factoriesapi:
@@ -109,11 +117,32 @@ services:
       - "7004:7004"
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
-      - DefaultConnection=Server=db;Database=factories;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};
+      - ASPNETCORE_URLS=http://+:7004
+      - DefaultConnection=Server=db;Database=factories;User=sa;Password=${SA_PASSWORD:-YourStrongPassword123!};TrustServerCertificate=True;
+      - Secret=${JWT_SECRET:-7c9e6679-7425-40de-944b-e07fc1f90ae6}
     depends_on:
       db:
         condition: service_healthy
       rabbit:
+        condition: service_healthy
+    restart: unless-stopped
+
+  apigateway:
+    image: microlabb/apigateway
+    build:
+      context: .
+      dockerfile: RtuItLab.ApiGateway/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ASPNETCORE_URLS=http://+:5000
+    depends_on:
+      identityapi:
+        condition: service_healthy
+      purchasesapi:
+        condition: service_healthy
+      shopsapi:
         condition: service_healthy
     restart: unless-stopped
 
