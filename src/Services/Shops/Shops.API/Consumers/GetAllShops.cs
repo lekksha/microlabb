@@ -15,11 +15,8 @@ namespace Shops.API.Consumers
 
         public async Task Consume(ConsumeContext<GetAllShopsRequest> context)
         {
-            // ShopsService.GetAllShops() returns Task<ICollection<Shop>> —
-            // await is mandatory here. Without it RespondAsync gets a Task
-            // object instead of ICollection<Shop> and the build fails with
-            // CS1061 'ICollection<Shop> does not contain GetAwaiter'.
-            ICollection<Shop> shops = await ShopsService.GetAllShops();
+            // GetAllShops() is synchronous — no await needed
+            ICollection<Shop> shops = ShopsService.GetAllShops();
             await context.RespondAsync(shops);
         }
     }
