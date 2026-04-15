@@ -2,10 +2,10 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using RtuItLab.Infrastructure.Filters;
 using RtuItLab.Infrastructure.MassTransit.Shops.Requests;
+using RtuItLab.Infrastructure.MassTransit.Shops.Responses;
 using RtuItLab.Infrastructure.Models;
 using RtuItLab.Infrastructure.Models.Identity;
 using RtuItLab.Infrastructure.Models.Shops;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,43 +15,50 @@ namespace Shops.API.Controllers
     [ApiController]
     public class ShopsController : ControllerBase
     {
-        private readonly IBus _bus;
-        private readonly Uri _rabbitMqUrl = new Uri("rabbitmq://rabbit/shopsQueue");
+        private readonly IRequestClient<GetAllShopsRequest>        _getAllShopsClient;
+        private readonly IRequestClient<GetProductsRequest>        _getProductsClient;
+        private readonly IRequestClient<GetProductsByCategoryRequest> _getByCategoryClient;
+        private readonly IRequestClient<BuyProductsRequest>        _buyProductsClient;
 
-        // BUG FIX: was IBusControl. IBus is the correct interface for sending
-        // messages from application code; IBusControl is for lifecycle management.
-        public ShopsController(IBus bus)
+        public ShopsController(
+            IRequestClient<GetAllShopsRequest>           getAllShopsClient,
+            IRequestClient<GetProductsRequest>           getProductsClient,
+            IRequestClient<GetProductsByCategoryRequest> getByCategoryClient,
+            IRequestClient<BuyProductsRequest>           buyProductsClient)
         {
-            _bus = bus;
+            _getAllShopsClient   = getAllShopsClient;
+            _getProductsClient  = getProductsClient;
+            _getByCategoryClient = getByCategoryClient;
+            _buyProductsClient  = buyProductsClient;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllShops()
         {
-            var response = await GetResponseRabbitTask<GetAllShopsRequest, ICollection<Shop>>(
+            var response = await _getAllShopsClient.GetResponse<GetAllShopsResponse>(
                 new GetAllShopsRequest());
-            return Ok(ApiResult<ICollection<Shop>>.Success200(response));
+            return Ok(ApiResult<List<Shop>>.Success200(response.Message.Shops));
         }
 
         [HttpGet("{shopId}")]
         public async Task<IActionResult> GetProducts(int shopId)
         {
-            var response = await GetResponseRabbitTask<GetProductsRequest, ICollection<Product>>(
+            var response = await _getProductsClient.GetResponse<GetProductsResponse>(
                 new GetProductsRequest { ShopId = shopId });
-            return Ok(ApiResult<ICollection<Product>>.Success200(response));
+            return Ok(ApiResult<List<Product>>.Success200(response.Message.Products));
         }
 
         [HttpPost("{shopId}/find_by_category")]
         public async Task<IActionResult> GetProductsByCategory(int shopId, [FromBody] Category category)
         {
             if (!ModelState.IsValid) return BadRequest();
-            var response = await GetResponseRabbitTask<GetProductsByCategoryRequest, ICollection<Product>>(
+            var response = await _getByCategoryClient.GetResponse<GetProductsResponse>(
                 new GetProductsByCategoryRequest
                 {
                     ShopId   = shopId,
                     Category = category.CategoryName
                 });
-            return Ok(ApiResult<ICollection<Product>>.Success200(response));
+            return Ok(ApiResult<List<Product>>.Success200(response.Message.Products));
         }
 
         [Authorize]
@@ -60,31 +67,19 @@ namespace Shops.API.Controllers
         {
             if (!ModelState.IsValid) return BadRequest();
 
-            // BUG FIX: JwtMiddleware sets User only when token is valid.
-            // Without this check a missing/invalid token causes NullReferenceException
-            // inside the BuyProducts consumer instead of returning 401.
             var user = HttpContext.Items["User"] as User;
             if (user == null)
                 return Unauthorized(ApiResult<object>.Failure(401,
-                    new System.Collections.Generic.List<string> { "Unauthorized" }));
+                    new List<string> { "Unauthorized" }));
 
-            var productsResponse = await GetResponseRabbitTask<BuyProductsRequest, ICollection<Product>>(
+            var response = await _buyProductsClient.GetResponse<GetProductsResponse>(
                 new BuyProductsRequest
                 {
                     User     = user,
                     ShopId   = shopId,
                     Products = products
                 });
-            return Ok(ApiResult<ICollection<Product>>.Success200(productsResponse));
-        }
-
-        private async Task<TOut> GetResponseRabbitTask<TIn, TOut>(TIn request)
-            where TIn : class
-            where TOut : class
-        {
-            var client   = _bus.CreateRequestClient<TIn>(_rabbitMqUrl);
-            var response = await client.GetResponse<TOut>(request);
-            return response.Message;
+            return Ok(ApiResult<List<Product>>.Success200(response.Message.Products));
         }
     }
 }
