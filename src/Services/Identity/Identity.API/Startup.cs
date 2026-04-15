@@ -37,8 +37,6 @@ namespace Identity.API
 
             services.Configure<AppSettings>(Configuration);
 
-            // Scoped lifetime (default) is required: ASP.NET Identity registers
-            // its managers as Scoped; a Transient DbContext would break DI.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration["DefaultConnection"]));
 
@@ -100,18 +98,13 @@ namespace Identity.API
                     cfg.ReceiveEndpoint("identityQueue", e =>
                     {
                         e.PrefetchCount = 20;
-                        // UseMessageRetry is part of MassTransit itself — no GreenPipes needed
-                        e.UseMessageRetry(r => r.Interval(2, TimeSpan.FromMilliseconds(100)));
+                        e.UseMessageRetry(r => r.Interval(2, 100));
                         e.Consumer<Authenticate>(context);
                         e.Consumer<CreateUser>(context);
                         e.Consumer<GetUserByToken>(context);
                     });
                 });
             });
-            // REMOVED: services.AddMassTransitHostedService()
-            // In MassTransit 7.1+ the hosted service is registered automatically
-            // inside AddMassTransit. Calling it explicitly is a no-op in 7.x and
-            // throws in 8.x.
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
