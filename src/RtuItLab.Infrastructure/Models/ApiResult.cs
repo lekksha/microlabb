@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RtuItLab.Infrastructure.Models
+namespace VegasShop.Infrastructure.Models
 {
     public class ApiResult<T>
     {

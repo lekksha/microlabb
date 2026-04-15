@@ -1,23 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using RtuItLab.Infrastructure.Models;
+using VegasShop.Infrastructure.Models;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace RtuItLab.Infrastructure.Filters
+namespace VegasShop.Infrastructure.Filters
 {
-    public class ValidateModelAttribute : ActionFilterAttribute
+    public class ValidateModelAttribute : Attribute, IAsyncResultFilter
     {
-        public override void OnActionExecuting(ActionExecutingContext context)
+        public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
             if (!context.ModelState.IsValid)
             {
                 var errors = context.ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-                context.Result = new BadRequestObjectResult(
-                    ApiResult<object>.Failure(400, errors));
+                    .SelectMany(modelState => modelState.Errors)
+                    .Select(modelError => modelError.ErrorMessage).ToList();
+
+                context.Result = new BadRequestObjectResult(ApiResult<string>.Failure(400, errors));
             }
+            await next();
         }
     }
 }

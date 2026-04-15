@@ -1,10 +1,10 @@
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Models.Shops;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace RtuItLab.Infrastructure.Models.Purchases
+namespace VegasShop.Infrastructure.Models.Purchases
 {
     [ValidateUpdateTransaction]
     public class UpdateTransaction

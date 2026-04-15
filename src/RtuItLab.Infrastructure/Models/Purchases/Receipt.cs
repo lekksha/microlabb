@@ -1,6 +1,4 @@
-using RtuItLab.Infrastructure.Models.Shops;
-
-namespace RtuItLab.Infrastructure.Models.Purchases
+namespace VegasShop.Infrastructure.Models.Purchases
 {
     public class Receipt
     {

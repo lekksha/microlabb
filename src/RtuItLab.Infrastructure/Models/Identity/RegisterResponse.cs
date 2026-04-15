@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace RtuItLab.Infrastructure.Models.Identity
+namespace VegasShop.Infrastructure.Models.Identity
 {
     public class RegisterResponse
     {

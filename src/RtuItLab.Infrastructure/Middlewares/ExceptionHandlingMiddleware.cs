@@ -1,24 +1,31 @@
 using MassTransit;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Models;
+using Microsoft.Extensions.Logging;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace RtuItLab.Infrastructure.Middlewares
+namespace VegasShop.Infrastructure.Middlewares
 {
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next)
+        public ExceptionHandlingMiddleware(
+            RequestDelegate next,
+            ILogger<ExceptionHandlingMiddleware> logger)
         {
-            _next = next;
+            _next   = next;
+            _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
             try
             {
@@ -26,48 +33,69 @@ namespace RtuItLab.Infrastructure.Middlewares
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex);
+                await HandleException(context, ex);
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private Task HandleException(HttpContext context, Exception ex)
         {
-            int statusCode;
-            string message;
+            _logger.LogError(ex, ex.Message);
 
-            switch (exception)
+            HttpStatusCode code;
+            List<string> errors;
+
+            switch (ex)
             {
-                case BadRequestException _:
-                    statusCode = 400;
-                    message = exception.Message;
+                case RequestFaultException faultEx:
+                    code = HttpStatusCode.InternalServerError;
+                    var faultMessage = faultEx.Fault?.Exceptions
+                        ?.FirstOrDefault()?.Message ?? faultEx.Message;
+                    errors = new List<string> { $"Service error: {faultMessage}" };
                     break;
-                case UnauthorizedException _:
-                    statusCode = 401;
-                    message = exception.Message;
+
+                case OperationCanceledException _:
+                case TimeoutException _:
+                    code   = HttpStatusCode.GatewayTimeout;
+                    errors = new List<string>
+                        { "Service timeout: downstream service did not respond in time." };
                     break;
-                case ForbiddenException _:
-                    statusCode = 403;
-                    message = exception.Message;
-                    break;
+
                 case NotFoundException _:
-                    statusCode = 404;
-                    message = exception.Message;
+                    code   = HttpStatusCode.NotFound;
+                    errors = new List<string> { ex.Message };
                     break;
-                case RequestFaultException rfe:
-                    statusCode = 500;
-                    message = rfe.Message;
+
+                case BadRequestException _:
+                    code   = HttpStatusCode.BadRequest;
+                    errors = new List<string> { ex.Message };
                     break;
+
+                case UnauthorizedException _:
+                    code   = HttpStatusCode.Unauthorized;
+                    errors = new List<string> { ex.Message };
+                    break;
+
+                case ForbiddenException _:
+                    code   = HttpStatusCode.Forbidden;
+                    errors = new List<string> { ex.Message };
+                    break;
+
                 default:
-                    statusCode = 500;
-                    message = exception.Message;
+                    code   = HttpStatusCode.InternalServerError;
+                    errors = new List<string> { ex.Message };
                     break;
             }
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = statusCode;
+            var result = JsonSerializer.Serialize(
+                ApiResult<string>.Failure((int)code, errors),
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
 
-            var result = JsonConvert.SerializeObject(
-                ApiResult<object>.Failure(statusCode, new List<string> { message }));
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode  = (int)code;
+
             return context.Response.WriteAsync(result);
         }
     }
