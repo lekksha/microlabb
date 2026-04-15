@@ -1,3 +1,4 @@
+using GreenPipes;
 using Identity.API.Consumers;
 using Identity.DAL.ContextModels;
 using Identity.DAL.Data;
@@ -34,16 +35,20 @@ namespace Identity.API
             {
                 option.Filters.Add(typeof(ValidateModelAttribute));
             });
+
             services.Configure<AppSettings>(Configuration);
-            // FIX: убран ServiceLifetime.Transient — несовместим с ASP.NET Identity (Scoped)
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration["DefaultConnection"]));
+
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
             }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
             services.AddScoped<IUserService, UserService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo()
@@ -74,44 +79,47 @@ namespace Identity.API
                             Scheme = "oauth2",
                             Name   = "Bearer",
                             In     = ParameterLocation.Header,
-
                         },
                         new List<string>()
                     }
                 });
             });
-            // FIX: убраны GreenPipes, ConfigureJsonSerializer/Deserializer (не существуют в MassTransit 8)
-            // FIX: убран AddMassTransitHostedService() — лишний вызов в MassTransit 8
+
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<Authenticate>();
                 x.AddConsumer<CreateUser>();
                 x.AddConsumer<GetUserByToken>();
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(new Uri("rabbitmq://rabbit/"));
+
                     cfg.ReceiveEndpoint("identityQueue", e =>
                     {
                         e.PrefetchCount = 20;
-                        e.UseMessageRetry(r => r.Interval(2, 100));
+                        e.UseMessageRetry(r => r.Interval(2, TimeSpan.FromMilliseconds(100)));
                         e.Consumer<Authenticate>(context);
                         e.Consumer<CreateUser>(context);
                         e.Consumer<GetUserByToken>(context);
                     });
                 });
             });
+
+            services.AddMassTransitHostedService();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
             app.UseSwagger()
                 .UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity.API V1");
                 });
+
             app.UseRouting();
-            // FIX: добавлены UseAuthentication и UseAuthorization
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
