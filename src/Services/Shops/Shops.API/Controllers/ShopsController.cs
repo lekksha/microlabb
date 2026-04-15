@@ -55,8 +55,8 @@ namespace Shops.API.Controllers
             var response = await _getCategoryClient.GetResponse<GetProductsResponse>(
                 new GetProductsByCategoryRequest
                 {
-                    ShopId       = shopId,
-                    CategoryName = category?.CategoryName
+                    ShopId   = shopId,
+                    Category = category?.CategoryName
                 });
             return Ok(ApiResult<ICollection<Product>>.Success200(response.Message.Products));
         }
