@@ -9,30 +9,32 @@ namespace Shops.API.Consumers
 {
     public class BuyProducts : ShopsBaseConsumer, IConsumer<BuyProductsRequest>
     {
-        private readonly IBusControl _busControl;
-        // FIX: исправлен hostname с localhost на rabbit
+        private readonly IBus _bus;
         private readonly Uri _rabbitMqUrl = new Uri("rabbitmq://rabbit/purchasesQueue");
 
-        public BuyProducts(IShopsService shopsService,
-            IBusControl busControl) : base(shopsService)
+        public BuyProducts(IShopsService shopsService, IBus bus) : base(shopsService)
         {
-            _busControl = busControl;
+            _bus = bus;
         }
 
         public async Task Consume(ConsumeContext<BuyProductsRequest> context)
         {
+            // 1. Сначала выполняем всю бизнес-логику...
             var order = await ShopsService.BuyProducts(context.Message.ShopId, context.Message.Products);
-            await context.RespondAsync(order);
-
             var transaction = await ShopsService.CreateTransaction(context.Message.ShopId, order);
             await ShopsService.AddReceipt(transaction.Receipt);
 
-            var endpoint = await _busControl.GetSendEndpoint(_rabbitMqUrl);
+            // 2. ...then send to Purchases (fire-and-forget: AddProductsByFactory
+            //    consumer has no RespondAsync, consistent with that pattern)
+            var endpoint = await _bus.GetSendEndpoint(_rabbitMqUrl);
             await endpoint.Send(new AddTransactionRequest
             {
                 User        = context.Message.User,
                 Transaction = transaction
             });
+
+            // 3. Отвечаем клиенту только после успешного сохранения всех данных
+            await context.RespondAsync(order);
         }
     }
 }
