@@ -44,8 +44,9 @@ namespace Purchases.Domain.Services
                 .Include(c => c.Transactions)
                 .FirstOrDefaultAsync(item => item.CustomerId == user.Id);
 
-            // Manual transaction — IsShopCreate always false
-            customer.Transactions.Add(transaction.ToTransactionContext());
+            var ctx = transaction.ToTransactionContext();
+            ctx.IsShopCreate = false;
+            customer.Transactions.Add(ctx);
             await _context.SaveChangesAsync();
 
             return new BaseResponseMassTransit();
@@ -58,7 +59,6 @@ namespace Purchases.Domain.Services
                 .Include(c => c.Transactions)
                 .FirstOrDefaultAsync(item => item.CustomerId == user.Id);
 
-            // Shop transaction — IsShopCreate forced true
             var ctx = transaction.ToTransactionContext();
             ctx.IsShopCreate = true;
             customer.Transactions.Add(ctx);
@@ -96,7 +96,10 @@ namespace Purchases.Domain.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(item => item.CustomerId == user.Id);
 
+            // Manual transactions first (IsShopCreate=false), then shop ones, ordered by id
             return customer.Transactions
+                .OrderBy(t => t.IsShopCreate)
+                .ThenBy(t => t.Id)
                 .Select(item => item.ToTransactionDto())
                 .ToList();
         }
