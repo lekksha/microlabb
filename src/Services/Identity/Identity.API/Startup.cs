@@ -14,7 +14,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using RtuItLab.Infrastructure.Filters;
 using RtuItLab.Infrastructure.Middlewares;
-using RtuItLab.Infrastructure.Models.Identity;
 using System;
 using System.Collections.Generic;
 
@@ -85,20 +84,13 @@ namespace Identity.API
                 });
             });
 
+            // MassTransit consumers are registered to serve CROSS-SERVICE calls only.
+            // AccountController calls IUserService directly (no in-process RabbitMQ round-trip).
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<Authenticate>();
                 x.AddConsumer<CreateUser>();
                 x.AddConsumer<GetUserByToken>();
-
-                // Register typed request clients — these are lifecycle-managed
-                // and always connected to the bus, unlike IBusControl.CreateRequestClient()
-                x.AddRequestClient<AuthenticateRequest>(
-                    new Uri("rabbitmq://rabbit/identityQueue"));
-                x.AddRequestClient<RegisterRequest>(
-                    new Uri("rabbitmq://rabbit/identityQueue"));
-                x.AddRequestClient<TokenRequest>(
-                    new Uri("rabbitmq://rabbit/identityQueue"));
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
