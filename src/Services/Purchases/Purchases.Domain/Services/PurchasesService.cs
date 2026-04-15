@@ -62,8 +62,10 @@ namespace Purchases.Domain.Services
             if (currentTransaction is null)
                 throw new NotFoundException("Transaction that is being updated was not found");
 
-            // FIX: вместо Task<Exception> с return new Exception(...) — теперь просто throw
-            await ApplyTransactionUpdate(currentTransaction, transaction);
+            if (currentTransaction.IsShopCreate)
+                throw new BadRequestException("You can't update a shop-created transaction!");
+
+            await UpdateUserTransaction(currentTransaction, transaction);
 
             return new BaseResponseMassTransit();
         }
@@ -84,7 +86,6 @@ namespace Purchases.Domain.Services
                 .ToList();
         }
 
-        // FIX: переименован в EnsureCustomerExists — более ясное имя
         private async Task EnsureCustomerExists(User user)
         {
             var customer = await _context.Customers.FirstOrDefaultAsync(item => item.CustomerId == user.Id);
@@ -92,26 +93,6 @@ namespace Purchases.Domain.Services
             {
                 await _context.Customers.AddAsync(new CustomerContext { CustomerId = user.Id });
                 await _context.SaveChangesAsync();
-            }
-        }
-
-        // FIX: метод был Task<Exception> и возвращал исключение как значение.
-        // Никто не проверял возвращаемое значение — ошибки молча игнорировались.
-        // Исправлено: теперь просто Task с throw.
-        private async Task ApplyTransactionUpdate(TransactionContext transactionContext,
-            UpdateTransaction updateTransaction)
-        {
-            if (transactionContext.IsShopCreate)
-            {
-                if (updateTransaction.Products != null || updateTransaction.Date != new DateTime())
-                    throw new BadRequestException("You can't change current shop's transaction!");
-
-                transactionContext.TransactionType = updateTransaction.TransactionType;
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                await UpdateUserTransaction(transactionContext, updateTransaction);
             }
         }
 

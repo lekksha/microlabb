@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Shops.DAL.ContextModels;
 
 namespace Shops.DAL.Data
@@ -19,16 +19,19 @@ namespace Shops.DAL.Data
             modelBuilder.Entity<ShopContext>().HasData(new ShopContext
             {
                 Id = 1,
+                Name = "Магазин на Первозданного",
                 PhoneNumber = "79788994545",
                 Address = "Москва, ул. Первозданного 36",
             }, new ShopContext
             {
                 Id = 2,
+                Name = "Магазин на Маршалла",
                 PhoneNumber = "79788992113",
                 Address = "Орёл, ул. Маршалла 36"
             }, new ShopContext
             {
                 Id = 3,
+                Name = "Магазин на Первомайской",
                 PhoneNumber = "79788992553",
                 Address = "Москва, ул. Первомайская 36"
             });
@@ -65,7 +68,7 @@ namespace Shops.DAL.Data
                 Count = 100,
                 Name = "Шлепанцы",
                 Cost = 122
-            }, new ProductContext 
+            }, new ProductContext
             {
                 ShopContextKey = 2,
                 Id = 5,
@@ -73,8 +76,7 @@ namespace Shops.DAL.Data
                 Count = 100,
                 Name = "Ботильоны",
                 Cost = 50
-
-            }, new ProductContext 
+            }, new ProductContext
             {
                 ShopContextKey = 2,
                 Id = 6,
@@ -82,7 +84,7 @@ namespace Shops.DAL.Data
                 Count = 100,
                 Name = "Чебурек",
                 Cost = 50
-            }, new ProductContext 
+            }, new ProductContext
             {
                 ShopContextKey = 2,
                 Id = 7,
@@ -90,7 +92,7 @@ namespace Shops.DAL.Data
                 Count = 1002,
                 Name = "Самса",
                 Cost = 50
-            }, new ProductContext 
+            }, new ProductContext
             {
                 ShopContextKey = 3,
                 Id = 8,
@@ -106,8 +108,7 @@ namespace Shops.DAL.Data
                 Count = 23,
                 Name = "Асфальт",
                 Cost = 50
-            }
-            );
+            });
         }
     }
 }
