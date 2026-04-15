@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using RtuItLab.Infrastructure.Models.Shops;
+using System.Collections.Generic;
 
-namespace RtuItLab.Infrastructure.MassTransit.Shops.Responses
+namespace VegasShop.Infrastructure.MassTransit.Shops.Responses
 {
     public class GetProductsResponse
     {
-        public bool Success { get; set; }
-        public List<Product> Products { get; set; }
+        public bool IsSuccess { get; set; }
+        public List<string> Errors { get; set; }
     }
 }

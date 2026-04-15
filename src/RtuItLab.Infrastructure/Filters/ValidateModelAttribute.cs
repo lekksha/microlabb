@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using RtuItLab.Infrastructure.Models;
+using VegasShop.Infrastructure.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RtuItLab.Infrastructure.Filters
+namespace VegasShop.Infrastructure.Filters
 {
     public class ValidateModelAttribute : Attribute, IAsyncResultFilter
     {

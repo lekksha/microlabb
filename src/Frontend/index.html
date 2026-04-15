@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RtuItLab Shop</title>
+  <title>VegasShop</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: monospace; font-size: 14px; background: #1e1e1e; color: #d4d4d4; }
@@ -35,9 +35,6 @@
     .shop-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
     .shop-tab { background: #2d2d2d; border: 1px solid #555; padding: 4px 10px; cursor: pointer; font-size: 12px; }
     .shop-tab.active { border-color: #4ec9b0; color: #4ec9b0; }
-    .product-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .product-row input[type=number] { width: 60px; }
-    .txn-type { font-size: 11px; }
     .badge { display: inline-block; padding: 1px 7px; border-radius: 2px; font-size: 11px; }
     .badge.shop { background: #1e3a5f; color: #569cd6; }
     .badge.manual { background: #3a1e5f; color: #c586c0; }
@@ -46,7 +43,7 @@
 <body>
 <div id="app">
   <div class="topbar">
-    <h1>&#x1f6d2; RtuItLab Shop</h1>
+    <h1>&#x1f3b0; VegasShop</h1>
     <div class="user-info" id="user-info">не авторизован</div>
   </div>
   <nav>
@@ -55,7 +52,6 @@
     <button onclick="showPage('purchases')">&#x1f4cb; Покупки</button>
   </nav>
 
-  <!-- AUTH -->
   <div class="page active" id="page-auth">
     <div style="display:flex;gap:20px;flex-wrap:wrap">
       <div class="card" style="flex:1;min-width:200px">
@@ -75,7 +71,6 @@
     </div>
   </div>
 
-  <!-- SHOPS -->
   <div class="page" id="page-shops">
     <h2>Магазины</h2>
     <div class="shop-tabs" id="shop-tabs">загрузка...</div>
@@ -83,7 +78,6 @@
     <div id="order-msg"></div>
   </div>
 
-  <!-- PURCHASES -->
   <div class="page" id="page-purchases">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <h2>История покупок</h2>
@@ -96,7 +90,6 @@
 <script>
   const API = '/api';
   let token = '';
-  let currentUser = null;
   let currentShopId = null;
   let shops = [];
 
@@ -104,9 +97,8 @@
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
-    const btns = document.querySelectorAll('nav button');
     const map = { auth: 0, shops: 1, purchases: 2 };
-    btns[map[name]].classList.add('active');
+    document.querySelectorAll('nav button')[map[name]].classList.add('active');
     if (name === 'shops') loadShops();
     if (name === 'purchases') loadPurchases();
   }
@@ -132,9 +124,8 @@
     const { status, json } = await api('/account/login', 'POST', { username, password });
     if (status === 200 && json.result?.token) {
       token = json.result.token;
-      currentUser = { id: json.result.id, username };
       document.getElementById('user-info').textContent = '&#x1f464; ' + username;
-      msg('login-msg', 'Успешно! Добро пожаловать, ' + username, true);
+      msg('login-msg', 'Добро пожаловать, ' + username + '!', true);
     } else {
       msg('login-msg', 'Ошибка: ' + (json.errors?.[0] || 'неверные данные'), false);
     }
@@ -154,10 +145,7 @@
 
   async function loadShops() {
     const { status, json } = await api('/shops/', 'GET');
-    if (status !== 200) {
-      document.getElementById('shop-tabs').textContent = 'Ошибка загрузки';
-      return;
-    }
+    if (status !== 200) { document.getElementById('shop-tabs').textContent = 'Ошибка загрузки'; return; }
     shops = json.result || [];
     const tabs = document.getElementById('shop-tabs');
     tabs.innerHTML = shops.map(s =>
@@ -203,7 +191,7 @@
       .filter(p => p.count > 0);
     const { status, json } = await api('/shops/' + shopId + '/order', 'POST', products, true);
     if (status === 200) {
-      msg('order-msg', 'Заказ оформлен! Товаров: ' + (json.result?.products?.length || 0), true);
+      msg('order-msg', 'Заказ оформлен!', true);
       selectShop(shopId);
     } else {
       msg('order-msg', 'Ошибка: ' + (json.errors?.[0] || 'что-то пошло не так'), false);
@@ -211,10 +199,7 @@
   }
 
   async function loadPurchases() {
-    if (!token) {
-      document.getElementById('purchases-list').innerHTML = '<div class="msg err">Войдите для просмотра покупок</div>';
-      return;
-    }
+    if (!token) { document.getElementById('purchases-list').innerHTML = '<div class="msg err">Войдите для просмотра покупок</div>'; return; }
     const { status, json } = await api('/purchases/', 'GET', null, true);
     const container = document.getElementById('purchases-list');
     if (status !== 200) { container.innerHTML = '<div class="msg err">Ошибка загрузки</div>'; return; }
@@ -224,17 +209,12 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span><b>#${t.id}</b> &nbsp; ${new Date(t.date).toLocaleString('ru')}</span>
-          <span>
-            <span class="badge ${t.isShopCreate ? 'shop' : 'manual'}">${t.isShopCreate ? 'магазин' : 'вручную'}</span>
-            &nbsp;
-            <span class="tag">${t.transactionType === 0 ? 'Тип 0' : 'Тип 1'}</span>
-          </span>
+          <span class="badge ${t.isShopCreate ? 'shop' : 'manual'}">${t.isShopCreate ? 'магазин' : 'вручную'}</span>
         </div>
         <table style="margin-top:8px">
           <tr><th>Товар</th><th>Цена</th><th>Кол-во</th></tr>
           ${(t.products || []).map(p => `<tr><td>${p.name}</td><td>${p.cost} ₽</td><td>${p.count}</td></tr>`).join('')}
         </table>
-        ${t.receipt ? `<div style="margin-top:6px;font-size:12px;color:#888">Чек: магазин #${t.receipt.shopId}</div>` : ''}
         ${!t.isShopCreate ? `
           <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
             <span style="font-size:12px">Тип:</span>
@@ -252,12 +232,8 @@
   async function updateTxn(id) {
     const transactionType = parseInt(document.getElementById('type-' + id).value);
     const { status, json } = await api('/purchases/update', 'PUT', { id, transactionType }, true);
-    if (status === 200) {
-      msg('purchases-list', '', true);
-      loadPurchases();
-    } else {
-      alert('Ошибка: ' + (json.errors?.[0] || 'не удалось обновить'));
-    }
+    if (status === 200) { loadPurchases(); }
+    else { alert('Ошибка: ' + (json.errors?.[0] || 'не удалось обновить')); }
   }
 </script>
 </body>

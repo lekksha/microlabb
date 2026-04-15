@@ -1,7 +1,6 @@
-﻿namespace RtuItLab.Infrastructure.MassTransit
+namespace VegasShop.Infrastructure.MassTransit
 {
     public class BaseResponseMassTransit
     {
-        
     }
 }

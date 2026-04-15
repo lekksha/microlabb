@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using RtuItLab.Infrastructure.Models.Shops;
+using System.Collections.Generic;
 
-namespace RtuItLab.Infrastructure.MassTransit.Shops.Requests
+namespace VegasShop.Infrastructure.MassTransit.Shops.Requests
 {
     public class AddProductsByFactoryRequest
     {
-        public List<ProductByFactory> Products { get; set; }
+        public int ShopId { get; set; }
+        public List<int> ProductIds { get; set; }
     }
 }

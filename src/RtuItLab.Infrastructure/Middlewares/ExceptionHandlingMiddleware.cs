@@ -1,8 +1,8 @@
 using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Models;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace RtuItLab.Infrastructure.Middlewares
+namespace VegasShop.Infrastructure.Middlewares
 {
     public class ExceptionHandlingMiddleware
     {
@@ -70,13 +70,11 @@ namespace RtuItLab.Infrastructure.Middlewares
                     errors = new List<string> { ex.Message };
                     break;
 
-                // 401 Unauthorized — no valid token / not authenticated
                 case UnauthorizedException _:
                     code   = HttpStatusCode.Unauthorized;
                     errors = new List<string> { ex.Message };
                     break;
 
-                // 403 Forbidden — authenticated but not permitted (role-based, future use)
                 case ForbiddenException _:
                     code   = HttpStatusCode.Forbidden;
                     errors = new List<string> { ex.Message };

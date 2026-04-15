@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace RtuItLab.Infrastructure.Models
+namespace VegasShop.Infrastructure.Models
 {
     public class ApiResult<T>
     { 
@@ -13,11 +13,8 @@ namespace RtuItLab.Infrastructure.Models
         }
         public ApiResult() { }
         public bool Succeeded { get; set; }
-
         public int Code { get; set; }
-
         public T Result { get; set; }
-
         public List<string> Errors { get; set; }
 
         public static ApiResult<T> Success(int code, T result)

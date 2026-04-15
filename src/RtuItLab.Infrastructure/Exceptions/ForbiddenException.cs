@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 
-namespace RtuItLab.Infrastructure.Exceptions
+namespace VegasShop.Infrastructure.Exceptions
 {
     public class ForbiddenException : Exception
     {
-        public ForbiddenException(string message) : base(message)
-        { }
+        public ForbiddenException(string message) : base(message) { }
     }
 }

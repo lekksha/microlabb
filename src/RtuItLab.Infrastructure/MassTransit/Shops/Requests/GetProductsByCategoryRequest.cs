@@ -1,4 +1,4 @@
-﻿namespace RtuItLab.Infrastructure.MassTransit.Shops.Requests
+namespace VegasShop.Infrastructure.MassTransit.Shops.Requests
 {
     public class GetProductsByCategoryRequest
     {

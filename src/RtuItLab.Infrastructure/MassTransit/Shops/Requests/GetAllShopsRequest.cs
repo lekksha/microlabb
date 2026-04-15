@@ -1,9 +1,7 @@
-﻿using RtuItLab.Infrastructure.Models.Identity;
-
-namespace RtuItLab.Infrastructure.MassTransit.Shops.Requests
+namespace VegasShop.Infrastructure.MassTransit.Shops.Requests
 {
     public class GetAllShopsRequest
     {
-        public User User { get; set; }
+        public string UserId { get; set; }
     }
 }
