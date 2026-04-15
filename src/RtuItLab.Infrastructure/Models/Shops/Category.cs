@@ -1,7 +1,9 @@
-﻿namespace RtuItLab.Infrastructure.Models.Shops
+namespace VegasShop.Infrastructure.Models.Shops
 {
-    public class Category
+    public enum Category
     {
-        public string CategoryName { get; set; }
+        Food = 0,
+        Electronics = 1,
+        Clothing = 2
     }
 }

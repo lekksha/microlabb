@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Models.Shops;
+using Newtonsoft.Json;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Models.Shops;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace RtuItLab.Infrastructure.Models.Purchases
+namespace VegasShop.Infrastructure.Models.Purchases
 {
     [RequireWhenIsShop]
     public class Transaction
@@ -15,7 +15,7 @@ namespace RtuItLab.Infrastructure.Models.Purchases
         public List<Product> Products { get; set; }
 
         public DateTime Date { get; set; }
-        public TransactionTypes TransactionType { get; set; } 
+        public TransactionTypes TransactionType { get; set; }
         public bool IsShopCreate { get; set; }
 
         public Receipt Receipt { get; set; }
@@ -30,11 +30,9 @@ namespace RtuItLab.Infrastructure.Models.Purchases
             if (!employee.IsShopCreate)
             {
                 if (employee.Receipt != null)
-                    throw new BadRequestException(@"Receipt must be null! Use ""receipt"":null in your request");
-
+                    throw new BadRequestException(@"Receipt must be null! Use \"receipt\":null in your request");
                 return ValidationResult.Success;
             }
-
             if (employee.Receipt == null || employee.Receipt.Cost == default || employee.Receipt.ShopId == default)
                 throw new BadRequestException("Invalid Receipt value");
             return ValidationResult.Success;

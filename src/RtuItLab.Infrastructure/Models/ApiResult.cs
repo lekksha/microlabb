@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace VegasShop.Infrastructure.Models
 {
     public class ApiResult<T>
-    { 
+    {
         public ApiResult(bool succeeded, int code, T result, List<string> errors)
         {
             Succeeded = succeeded;
