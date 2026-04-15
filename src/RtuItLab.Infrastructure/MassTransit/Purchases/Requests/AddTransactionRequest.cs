@@ -1,12 +1,11 @@
-using System.Collections.Generic;
+using RtuItLab.Infrastructure.Models.Identity;
+using RtuItLab.Infrastructure.Models.Purchases;
 
-namespace VegasShop.Infrastructure.MassTransit.Purchases.Requests
+namespace RtuItLab.Infrastructure.MassTransit.Purchases.Requests
 {
     public class AddTransactionRequest
     {
-        public string UserId { get; set; }
-        public bool IsShopCreate { get; set; }
-        public List<int> ProductIds { get; set; }
-        public int ShopId { get; set; }
+        public User User { get; set; }
+        public Transaction Transaction { get; set; }
     }
 }

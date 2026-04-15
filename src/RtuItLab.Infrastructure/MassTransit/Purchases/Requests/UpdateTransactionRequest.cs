@@ -1,9 +1,11 @@
-namespace VegasShop.Infrastructure.MassTransit.Purchases.Requests
+using RtuItLab.Infrastructure.Models.Identity;
+using RtuItLab.Infrastructure.Models.Purchases;
+
+namespace RtuItLab.Infrastructure.MassTransit.Purchases.Requests
 {
     public class UpdateTransactionRequest
     {
-        public string UserId { get; set; }
-        public int TransactionId { get; set; }
-        public int TransactionType { get; set; }
+        public User User { get; set; }
+        public UpdateTransaction UpdateTransaction { get; set; }
     }
 }
