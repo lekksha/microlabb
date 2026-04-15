@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Purchases.DAL.ContextModels;
 using RtuItLab.Infrastructure.Models.Purchases;
 using RtuItLab.Infrastructure.Models.Shops;
@@ -17,7 +17,7 @@ namespace Purchases.Domain.Helpers
                 Receipt         = model.Receipt.ToReceiptContext(),
                 Date            = model.Date,
                 TransactionType = model.TransactionType,
-                IsShopCreate    = model.IsShopCreate
+                IsShopCreate    = false
             };
         }
 
