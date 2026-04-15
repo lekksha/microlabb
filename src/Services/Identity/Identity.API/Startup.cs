@@ -1,4 +1,3 @@
-using GreenPipes;
 using Identity.API.Consumers;
 using Identity.DAL.ContextModels;
 using Identity.DAL.Data;
@@ -38,6 +37,8 @@ namespace Identity.API
 
             services.Configure<AppSettings>(Configuration);
 
+            // Scoped lifetime (default) is required: ASP.NET Identity registers
+            // its managers as Scoped; a Transient DbContext would break DI.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration["DefaultConnection"]));
 
@@ -45,28 +46,29 @@ namespace Identity.API
             {
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             services.AddScoped<IUserService, UserService>();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo()
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title   = "Identity Service",
                     Version = "v1"
                 });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = @"JWT Authorization header using the Bearer scheme.
-                      Enter 'Bearer' [space] and then your token in the text input below.
-                      Example: 'Bearer 12345abcdef'",
+                    Description = "JWT Authorization header using the Bearer scheme. " +
+                                  "Enter 'Bearer {token}'",
                     Name   = "Authorization",
                     In     = ParameterLocation.Header,
                     Type   = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
@@ -78,7 +80,7 @@ namespace Identity.API
                             },
                             Scheme = "oauth2",
                             Name   = "Bearer",
-                            In     = ParameterLocation.Header,
+                            In     = ParameterLocation.Header
                         },
                         new List<string>()
                     }
@@ -98,6 +100,7 @@ namespace Identity.API
                     cfg.ReceiveEndpoint("identityQueue", e =>
                     {
                         e.PrefetchCount = 20;
+                        // UseMessageRetry is part of MassTransit itself — no GreenPipes needed
                         e.UseMessageRetry(r => r.Interval(2, TimeSpan.FromMilliseconds(100)));
                         e.Consumer<Authenticate>(context);
                         e.Consumer<CreateUser>(context);
@@ -105,8 +108,10 @@ namespace Identity.API
                     });
                 });
             });
-
-            services.AddMassTransitHostedService();
+            // REMOVED: services.AddMassTransitHostedService()
+            // In MassTransit 7.1+ the hosted service is registered automatically
+            // inside AddMassTransit. Calling it explicitly is a no-op in 7.x and
+            // throws in 8.x.
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -114,10 +119,10 @@ namespace Identity.API
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseSwagger()
-                .UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity.API V1");
-                });
+               .UseSwaggerUI(c =>
+               {
+                   c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity.API V1");
+               });
 
             app.UseRouting();
             app.UseAuthentication();
