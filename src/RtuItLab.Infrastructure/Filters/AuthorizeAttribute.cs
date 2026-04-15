@@ -1,22 +1,17 @@
 using System;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using VegasShop.Infrastructure.Models.Identity;
+using RtuItLab.Infrastructure.Exceptions;
+using RtuItLab.Infrastructure.Models.Identity;
 
-namespace VegasShop.Infrastructure.Filters
+namespace RtuItLab.Infrastructure.Filters
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class AuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var user = (User)context.HttpContext.Items["User"];
-            if (user == null)
-            {
-                context.Result = new JsonResult(new { message = "Unauthorized" })
-                    { StatusCode = StatusCodes.Status401Unauthorized };
-            }
+            if (!(context.HttpContext.Items["User"] is User))
+                throw new UnauthorizedException("User unauthorized!");
         }
     }
 }
