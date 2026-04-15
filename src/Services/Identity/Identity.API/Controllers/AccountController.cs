@@ -1,9 +1,9 @@
-using MassTransit;
+using Identity.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.MassTransit;
 using RtuItLab.Infrastructure.Models;
 using RtuItLab.Infrastructure.Models.Identity;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Identity.API.Controllers
@@ -12,29 +12,30 @@ namespace Identity.API.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly IRequestClient<AuthenticateRequest> _authClient;
-        private readonly IRequestClient<RegisterRequest>     _registerClient;
+        private readonly IUserService _userService;
 
-        public AccountController(
-            IRequestClient<AuthenticateRequest> authClient,
-            IRequestClient<RegisterRequest>     registerClient)
+        public AccountController(IUserService userService)
         {
-            _authClient     = authClient;
-            _registerClient = registerClient;
+            _userService = userService;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AuthenticateRequest model)
         {
-            var response = await _authClient.GetResponse<AuthenticateResponse>(model);
-            return Ok(ApiResult<AuthenticateResponse>.Success200(response.Message));
+            var result = await _userService.Authenticate(model);
+            return Ok(ApiResult<AuthenticateResponse>.Success200(result));
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
-            var response = await _registerClient.GetResponse<RegisterResponse>(model);
-            return Ok(ApiResult<RegisterResponse>.Success200(response.Message));
+            var identityResult = await _userService.CreateUser(model);
+            var response = new RegisterResponse
+            {
+                Succeeded = identityResult.Succeeded,
+                Errors    = identityResult.Errors.Select(e => e.Description)
+            };
+            return Ok(ApiResult<RegisterResponse>.Success200(response));
         }
 
         [HttpGet("user")]
