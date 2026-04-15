@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace RtuItLab.Infrastructure.Models.Identity
+namespace VegasShop.Infrastructure.Models.Identity
 {
     public class AuthenticateRequest
     {
