@@ -46,8 +46,6 @@ namespace RtuItLab.Infrastructure.Middlewares
 
             switch (ex)
             {
-                // MassTransit consumer threw — extract the inner fault message
-                // so the caller gets a meaningful error instead of a timeout detail.
                 case RequestFaultException faultEx:
                     code = HttpStatusCode.InternalServerError;
                     var faultMessage = faultEx.Fault?.Exceptions
@@ -55,7 +53,6 @@ namespace RtuItLab.Infrastructure.Middlewares
                     errors = new List<string> { $"Service error: {faultMessage}" };
                     break;
 
-                // MassTransit request timed out — downstream service did not respond.
                 case OperationCanceledException _:
                 case TimeoutException _:
                     code   = HttpStatusCode.GatewayTimeout;
@@ -73,6 +70,13 @@ namespace RtuItLab.Infrastructure.Middlewares
                     errors = new List<string> { ex.Message };
                     break;
 
+                // 401 Unauthorized — no valid token / not authenticated
+                case UnauthorizedException _:
+                    code   = HttpStatusCode.Unauthorized;
+                    errors = new List<string> { ex.Message };
+                    break;
+
+                // 403 Forbidden — authenticated but not permitted (role-based, future use)
                 case ForbiddenException _:
                     code   = HttpStatusCode.Forbidden;
                     errors = new List<string> { ex.Message };

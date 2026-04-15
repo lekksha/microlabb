@@ -1,14 +1,10 @@
-﻿using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Purchases.Domain.Services;
 using RtuItLab.Infrastructure.Exceptions;
 using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.MassTransit;
-using RtuItLab.Infrastructure.MassTransit.Purchases.Requests;
 using RtuItLab.Infrastructure.Models;
 using RtuItLab.Infrastructure.Models.Identity;
 using RtuItLab.Infrastructure.Models.Purchases;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Purchases.API.Controllers
@@ -18,30 +14,29 @@ namespace Purchases.API.Controllers
     [Authorize]
     public class PurchasesController : ControllerBase
     {
-        private readonly IBusControl _busControl;
-        private readonly Uri _rabbitMqUrl = new Uri("rabbitmq://rabbit/purchasesQueue");
+        private readonly IPurchasesService _purchasesService;
 
-        public PurchasesController(IBusControl busControl)
+        public PurchasesController(IPurchasesService purchasesService)
         {
-            _busControl = busControl;
+            _purchasesService = purchasesService;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllHistory()
         {
             var user = HttpContext.Items["User"] as User;
-            var response = await GetResponseRabbitTask<User, ICollection<Transaction>>(user);
-            return Ok(ApiResult<ICollection<Transaction>>.Success200(response));
+            var result = await _purchasesService.GetTransactions(user);
+            return Ok(ApiResult<System.Collections.Generic.ICollection<Transaction>>.Success200(result));
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHistory(int id)
         {
             var user = HttpContext.Items["User"] as User;
-            var response = await GetResponseRabbitTask<GetTransactionByIdRequest, Transaction>(new GetTransactionByIdRequest{
-            Id = id,
-            User = user
-            });
-            return Ok(ApiResult<Transaction>.Success200(response));
+            var result = await _purchasesService.GetTransactionById(user, id);
+            return Ok(ApiResult<Transaction>.Success200(result));
         }
+
         [HttpPost("add")]
         public async Task<IActionResult> AddTransaction([FromBody] Transaction transaction)
         {
@@ -49,33 +44,18 @@ namespace Purchases.API.Controllers
                 throw new BadRequestException("You can't add shops' transaction");
             if (!ModelState.IsValid)
                 throw new BadRequestException("Invalid request");
-            var user     = HttpContext.Items["User"] as User;
-            await GetResponseRabbitTask<AddTransactionRequest, BaseResponseMassTransit>(new AddTransactionRequest()
-            {
-                User = user,
-                Transaction = transaction
-            });
+            var user = HttpContext.Items["User"] as User;
+            await _purchasesService.AddTransaction(user, transaction);
             return Ok(ApiResult<int>.Success200(transaction.Id));
         }
+
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateTransaction( [FromBody] UpdateTransaction updateTransaction)
+        public async Task<IActionResult> UpdateTransaction([FromBody] UpdateTransaction updateTransaction)
         {
             if (!ModelState.IsValid) return BadRequest("Invalid request");
             var user = HttpContext.Items["User"] as User;
-            await GetResponseRabbitTask<UpdateTransactionRequest, BaseResponseMassTransit>(new UpdateTransactionRequest()
-            {
-                User = user,
-                Transaction = updateTransaction
-            });
+            await _purchasesService.UpdateTransaction(user, updateTransaction);
             return Ok(ApiResult<int>.Success200(updateTransaction.Id));
-        }
-        private async Task<TOut> GetResponseRabbitTask<TIn, TOut>(TIn request)
-            where TIn : class
-            where TOut : class
-        {
-            var client = _busControl.CreateRequestClient<TIn>(_rabbitMqUrl);
-            var response = await client.GetResponse<TOut>(request);
-            return response.Message;
         }
     }
 }

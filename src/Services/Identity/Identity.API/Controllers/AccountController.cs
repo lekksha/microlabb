@@ -26,16 +26,24 @@ namespace Identity.API.Controllers
             return Ok(ApiResult<AuthenticateResponse>.Success200(result));
         }
 
+        /// <summary>
+        /// Returns 200 on success, 400 if username is already taken or
+        /// password does not meet complexity requirements.
+        /// Previously always returned 200 even when IdentityResult.Succeeded == false.
+        /// </summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
             var identityResult = await _userService.CreateUser(model);
-            var response = new RegisterResponse
+            if (!identityResult.Succeeded)
+                return BadRequest(ApiResult<object>.Failure(400,
+                    identityResult.Errors.Select(e => e.Description).ToList()));
+
+            return Ok(ApiResult<RegisterResponse>.Success200(new RegisterResponse
             {
-                Succeeded = identityResult.Succeeded,
-                Errors    = identityResult.Errors.Select(e => e.Description)
-            };
-            return Ok(ApiResult<RegisterResponse>.Success200(response));
+                Succeeded = true,
+                Errors    = System.Array.Empty<string>()
+            }));
         }
 
         [HttpGet("user")]
