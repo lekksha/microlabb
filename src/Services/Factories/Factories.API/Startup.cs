@@ -36,20 +36,17 @@ namespace Factories.API
                     cfg.Host(new Uri("rabbitmq://rabbit/"));
                 });
             });
+            // REMOVED: services.AddMassTransitHostedService() — auto-registered in MT 7.1+
 
-            services.AddMassTransitHostedService();
             services.AddHostedService<UpdateShopsTimedHostedService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
 
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/", async context =>
