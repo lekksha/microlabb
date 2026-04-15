@@ -76,7 +76,6 @@ namespace Purchases.API
             {
                 x.AddConsumer<AddTransaction>();
                 x.AddConsumer<GetTransactionById>();
-                // FIXED: was IConsumer<User> — now IConsumer<GetTransactionsRequest>
                 x.AddConsumer<GetTransactions>();
                 x.AddConsumer<UpdateTransaction>();
 
@@ -87,7 +86,11 @@ namespace Purchases.API
                     cfg.ReceiveEndpoint("purchasesQueue", e =>
                     {
                         e.PrefetchCount = 20;
-                        e.UseMessageRetry(r => r.Interval(2, TimeSpan.FromMilliseconds(100)));
+                        // Interval(int retryCount, int intervalMs) — correct overload
+                        // for MassTransit 7.x without GreenPipes.
+                        // Interval(int, TimeSpan) resolves to an IExceptionFilter
+                        // extension and does NOT compile on IRetryConfigurator directly.
+                        e.UseMessageRetry(r => r.Interval(2, 100));
                         e.Consumer<AddTransaction>(context);
                         e.Consumer<GetTransactionById>(context);
                         e.Consumer<GetTransactions>(context);
@@ -95,7 +98,6 @@ namespace Purchases.API
                     });
                 });
             });
-            // REMOVED: services.AddMassTransitHostedService() — auto-registered in MT 7.1+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
