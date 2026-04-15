@@ -30,7 +30,7 @@ namespace VegasShop.Infrastructure.Models.Purchases
             if (!employee.IsShopCreate)
             {
                 if (employee.Receipt != null)
-                    throw new BadRequestException("Receipt must be null! Use \"receipt\":null in your request");
+                    throw new BadRequestException(@"Receipt must be null! Use \"receipt\":null in your request");
                 return ValidationResult.Success;
             }
             if (employee.Receipt == null || employee.Receipt.Cost == default || employee.Receipt.ShopId == default)
