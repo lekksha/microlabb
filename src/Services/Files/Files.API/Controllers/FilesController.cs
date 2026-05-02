@@ -82,13 +82,14 @@ namespace Files.API.Controllers
             var ext = Path.GetExtension(fileName).ToLowerInvariant();
             return ext switch
             {
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png"            => "image/png",
-                ".gif"            => "image/gif",
-                ".pdf"            => "application/pdf",
-                ".txt"            => "text/plain",
-                ".json"           => "application/json",
-                _                 => "application/octet-stream"
+                ".jpg"  => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png"  => "image/png",
+                ".gif"  => "image/gif",
+                ".pdf"  => "application/pdf",
+                ".txt"  => "text/plain",
+                ".json" => "application/json",
+                _       => "application/octet-stream"
             };
         }
     }
