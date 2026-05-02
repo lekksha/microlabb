@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Purchases.DAL.ContextModels;
-using RtuItLab.Infrastructure.Models.Purchases;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Models.Shops;
 
 namespace Purchases.Domain.Helpers
 {

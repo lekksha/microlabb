@@ -2,15 +2,15 @@ using Identity.DAL.ContextModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using RtuItLab.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Identity;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.MassTransit;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.MassTransit;
 
 namespace Identity.Domain.Services
 {

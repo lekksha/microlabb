@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\RtuItLab.Infrastructure\RtuItLab.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\VegasShop.Infrastructure\VegasShop.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

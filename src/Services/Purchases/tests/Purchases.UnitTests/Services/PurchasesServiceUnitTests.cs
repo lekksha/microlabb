@@ -2,9 +2,9 @@
 using Purchases.DAL.ContextModels;
 using Purchases.DAL.Data;
 using Purchases.Domain.Services;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Purchases;
 using System;
 using System.Collections.Generic;
 using System.Linq;

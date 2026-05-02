@@ -1,6 +1,6 @@
 ﻿using Identity.FunctionalTests.Base;
-using RtuItLab.Infrastructure.Models;
-using RtuItLab.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models;
+using VegasShop.Infrastructure.Models.Identity;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;

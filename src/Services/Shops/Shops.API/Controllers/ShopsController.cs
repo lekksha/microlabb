@@ -1,10 +1,10 @@
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
-using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.MassTransit.Purchases.Requests;
-using RtuItLab.Infrastructure.Models;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Filters;
+using VegasShop.Infrastructure.MassTransit.Purchases.Requests;
+using VegasShop.Infrastructure.Models;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Shops;
 using Shops.Domain.Services;
 using System;
 using System.Collections.Generic;

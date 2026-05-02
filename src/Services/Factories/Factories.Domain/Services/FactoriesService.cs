@@ -1,7 +1,7 @@
 using Factories.DAL.Data;
 using Factories.Domain.Helpers;
 using Microsoft.EntityFrameworkCore;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Models.Shops;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

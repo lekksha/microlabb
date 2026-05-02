@@ -1,6 +1,6 @@
-using RtuItLab.Infrastructure.MassTransit;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.MassTransit;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Purchases;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

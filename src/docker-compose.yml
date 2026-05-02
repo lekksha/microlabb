@@ -145,11 +145,34 @@ services:
       - backend
       - messaging
 
+  filesapi:
+    image: microlabb/filesapi
+    build:
+      context: .
+      dockerfile: Services/Files/Files.API/Dockerfile
+    ports:
+      - "7005:7005"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ASPNETCORE_URLS=http://+:7005
+      - StoragePath=/app/uploads
+    volumes:
+      - files_data:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7005/swagger/index.html > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - gateway
+
   apigateway:
     image: microlabb/apigateway
     build:
       context: .
-      dockerfile: RtuItLab.ApiGateway/Dockerfile
+      dockerfile: VegasShop.ApiGateway/Dockerfile
     ports:
       - "5000:5000"
     environment:
@@ -161,6 +184,8 @@ services:
       purchasesapi:
         condition: service_healthy
       shopsapi:
+        condition: service_healthy
+      filesapi:
         condition: service_healthy
     restart: unless-stopped
     networks:
@@ -197,6 +222,7 @@ services:
 
 volumes:
   sqlserver_data:
+  files_data:
 
 networks:
   # Фронтенд видит только Gateway, не видит БД и брокер

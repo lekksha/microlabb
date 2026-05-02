@@ -1,5 +1,5 @@
 ﻿using Factories.DAL.ContextModels;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Models.Shops;
 
 namespace Factories.Domain.Helpers
 {

@@ -9,8 +9,8 @@ using Microsoft.OpenApi.Models;
 using Purchases.API.Consumers;
 using Purchases.DAL.Data;
 using Purchases.Domain.Services;
-using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.Middlewares;
+using VegasShop.Infrastructure.Filters;
+using VegasShop.Infrastructure.Middlewares;
 using System;
 using System.Collections.Generic;
 

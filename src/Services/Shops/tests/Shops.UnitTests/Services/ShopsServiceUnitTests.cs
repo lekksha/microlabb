@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Models.Shops;
 using Shops.DAL.Data;
 using Shops.Domain.Services;
 using Xunit;

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.MassTransit;
-using RtuItLab.Infrastructure.Models.Purchases;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.MassTransit;
+using VegasShop.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Models.Shops;
 using Shops.DAL.Data;
 using Shops.Domain.Helpers;
 using System;

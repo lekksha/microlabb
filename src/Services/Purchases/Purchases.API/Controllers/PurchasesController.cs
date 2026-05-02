@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Purchases.Domain.Services;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.Models;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.Filters;
+using VegasShop.Infrastructure.Models;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Purchases;
 using System.Threading.Tasks;
 
 namespace Purchases.API.Controllers

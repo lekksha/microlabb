@@ -1,4 +1,4 @@
-﻿using RtuItLab.Infrastructure.Models.Shops;
+﻿using VegasShop.Infrastructure.Models.Shops;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

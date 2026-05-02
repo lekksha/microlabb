@@ -12,8 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.Middlewares;
+using VegasShop.Infrastructure.Filters;
+using VegasShop.Infrastructure.Middlewares;
 using System;
 using System.Collections.Generic;
 

@@ -1,8 +1,8 @@
 using Identity.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
-using RtuItLab.Infrastructure.Filters;
-using RtuItLab.Infrastructure.Models;
-using RtuItLab.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Filters;
+using VegasShop.Infrastructure.Models;
+using VegasShop.Infrastructure.Models.Identity;
 using System.Linq;
 using System.Threading.Tasks;
 

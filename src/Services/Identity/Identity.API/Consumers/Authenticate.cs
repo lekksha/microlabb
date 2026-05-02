@@ -2,7 +2,7 @@
 using Identity.Domain.Services;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using RtuItLab.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Identity;
 
 namespace Identity.API.Consumers
 {
