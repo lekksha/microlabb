@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MassTransit;
-using RtuItLab.Infrastructure.MassTransit.Shops.Requests;
+using VegasShop.Infrastructure.MassTransit.Shops.Requests;
 using Shops.Domain.Services;
 
 namespace Shops.API.Consumers

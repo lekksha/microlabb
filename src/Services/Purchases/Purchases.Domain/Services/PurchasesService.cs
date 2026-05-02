@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Purchases.DAL.ContextModels;
 using Purchases.DAL.Data;
 using Purchases.Domain.Helpers;
-using RtuItLab.Infrastructure.Exceptions;
-using RtuItLab.Infrastructure.MassTransit;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Exceptions;
+using VegasShop.Infrastructure.MassTransit;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Purchases;
 
 namespace Purchases.Domain.Services
 {

@@ -1,7 +1,7 @@
-﻿using RtuItLab.Infrastructure.Models.Identity;
+﻿using VegasShop.Infrastructure.Models.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using RtuItLab.Infrastructure.MassTransit;
+using VegasShop.Infrastructure.MassTransit;
 
 namespace Identity.Domain.Services
 {

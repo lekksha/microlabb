@@ -3,7 +3,7 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RtuItLab.Infrastructure.MassTransit.Shops.Requests;
+using VegasShop.Infrastructure.MassTransit.Shops.Requests;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -61,7 +61,7 @@ namespace Factories.API.BackgroundService
                 var endpoint = await _bus.GetSendEndpoint(_shopsQueue);
                 await endpoint.Send(new AddProductsByFactoryRequest
                 {
-                    Products = new List<RtuItLab.Infrastructure.Models.Shops.ProductByFactory>(products)
+                    Products = new List<VegasShop.Infrastructure.Models.Shops.ProductByFactory>(products)
                 });
 
                 _logger.LogInformation(

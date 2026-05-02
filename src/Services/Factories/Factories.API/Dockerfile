@@ -7,7 +7,7 @@ EXPOSE 7004
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["Services/Factories/Factories.API/Factories.API.csproj", "Services/Factories/Factories.API/"]
-COPY ["RtuItLab.Infrastructure/RtuItLab.Infrastructure.csproj", "RtuItLab.Infrastructure/"]
+COPY ["VegasShop.Infrastructure/VegasShop.Infrastructure.csproj", "VegasShop.Infrastructure/"]
 RUN dotnet restore "Services/Factories/Factories.API/Factories.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Factories/Factories.API"

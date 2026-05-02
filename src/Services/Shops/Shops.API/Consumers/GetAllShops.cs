@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
-using RtuItLab.Infrastructure.MassTransit.Shops.Requests;
-using RtuItLab.Infrastructure.MassTransit.Shops.Responses;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.MassTransit.Shops.Requests;
+using VegasShop.Infrastructure.MassTransit.Shops.Responses;
+using VegasShop.Infrastructure.Models.Shops;
 using Shops.Domain.Services;
 
 namespace Shops.API.Consumers

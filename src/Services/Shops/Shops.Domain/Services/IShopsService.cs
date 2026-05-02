@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using RtuItLab.Infrastructure.MassTransit;
-using RtuItLab.Infrastructure.Models.Purchases;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.MassTransit;
+using VegasShop.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Models.Shops;
 
 namespace Shops.Domain.Services
 {

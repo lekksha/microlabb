@@ -1,10 +1,10 @@
 ﻿using Identity.FunctionalTests.Base;
 using Microsoft.AspNetCore.TestHost;
 using Purchases.FunctionalTests.Base;
-using RtuItLab.Infrastructure.Models;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Purchases;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Models;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Purchases;
+using VegasShop.Infrastructure.Models.Shops;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;

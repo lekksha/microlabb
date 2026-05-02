@@ -1,6 +1,6 @@
 using MassTransit;
 using Purchases.Domain.Services;
-using RtuItLab.Infrastructure.MassTransit.Purchases.Requests;
+using VegasShop.Infrastructure.MassTransit.Purchases.Requests;
 using System.Threading.Tasks;
 
 namespace Purchases.API.Consumers

@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RtuItLab Shop</title>
+  <title>VegasShop</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: monospace; font-size: 14px; background: #1e1e1e; color: #d4d4d4; }
-    #app { max-width: 900px; margin: 0 auto; padding: 20px; }
-    h1 { color: #569cd6; margin-bottom: 20px; }
+    #app { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    h1 { color: #569cd6; margin-bottom: 4px; }
     h2 { color: #4ec9b0; margin-bottom: 10px; }
+    h3 { color: #ce9178; margin-bottom: 6px; }
     nav { display: flex; gap: 10px; margin-bottom: 20px; }
     nav button { background: #2d2d2d; color: #d4d4d4; border: 1px solid #555; padding: 6px 14px; cursor: pointer; }
     nav button:hover { background: #3e3e3e; }
@@ -17,14 +18,18 @@
     .page { display: none; }
     .page.active { display: block; }
     .card { background: #2d2d2d; border: 1px solid #3e3e3e; padding: 14px; margin-bottom: 10px; }
-    .card h3 { color: #ce9178; margin-bottom: 6px; }
     input, select { background: #3c3c3c; color: #d4d4d4; border: 1px solid #555; padding: 6px 10px; width: 100%; margin-bottom: 8px; }
+    input[type=number] { width: 60px; margin: 0; }
+    input[type=file] { padding: 4px; }
     button.btn { background: #0e639c; color: #fff; border: none; padding: 8px 18px; cursor: pointer; margin-top: 4px; }
     button.btn:hover { background: #1177bb; }
+    button.btn.sm { padding: 4px 10px; font-size: 12px; margin-top: 0; }
+    button.btn.green { background: #1a5c2a; }
+    button.btn.green:hover { background: #226b35; }
     button.btn.danger { background: #6e1414; }
     button.btn.danger:hover { background: #8b1a1a; }
     .msg { margin-top: 10px; padding: 8px; }
-    .msg.ok { background: #1e3a1e; color: #6a9955; border: 1px solid #3a6a3a; }
+    .msg.ok  { background: #1e3a1e; color: #6a9955; border: 1px solid #3a6a3a; }
     .msg.err { background: #3a1e1e; color: #f44747; border: 1px solid #6a3a3a; }
     .tag { display: inline-block; background: #3e3e3e; border: 1px solid #555; padding: 2px 8px; margin: 2px; font-size: 12px; }
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #3e3e3e; }
@@ -35,24 +40,40 @@
     .shop-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
     .shop-tab { background: #2d2d2d; border: 1px solid #555; padding: 4px 10px; cursor: pointer; font-size: 12px; }
     .shop-tab.active { border-color: #4ec9b0; color: #4ec9b0; }
-    .product-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .product-row input[type=number] { width: 60px; }
-    .txn-type { font-size: 11px; }
     .badge { display: inline-block; padding: 1px 7px; border-radius: 2px; font-size: 11px; }
-    .badge.shop { background: #1e3a5f; color: #569cd6; }
+    .badge.shop   { background: #1e3a5f; color: #569cd6; }
     .badge.manual { background: #3a1e5f; color: #c586c0; }
+    .shop-layout { display: flex; gap: 16px; align-items: flex-start; }
+    .shop-main { flex: 1; min-width: 0; }
+    .cart-panel { width: 260px; flex-shrink: 0; background: #252526; border: 1px solid #3e3e3e; padding: 12px; position: sticky; top: 10px; }
+    .cart-panel h3 { color: #dcdcaa; margin-bottom: 10px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #3e3e3e; font-size: 12px; gap: 6px; }
+    .cart-item span.name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cart-total { margin-top: 10px; font-weight: bold; color: #dcdcaa; }
+    .filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .filter-row label { white-space: nowrap; color: #9cdcfe; }
+    .filter-row select { width: auto; margin: 0; min-width: 160px; }
+    .cat-badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; background: #264f78; color: #9cdcfe; }
+    .file-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-bottom: 1px solid #3e3e3e; font-size: 12px; }
+    .file-row .fname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9cdcfe; }
+    .upload-area { border: 1px dashed #555; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 12px; color: #888; }
+    .upload-area:hover { border-color: #569cd6; color: #569cd6; }
   </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
-    <h1>&#x1f6d2; RtuItLab Shop</h1>
+    <div>
+      <h1>&#x1f3b0; VegasShop</h1>
+      <div style="font-size:11px;color:#555">Микросервисная платформа</div>
+    </div>
     <div class="user-info" id="user-info">не авторизован</div>
   </div>
   <nav>
     <button class="active" onclick="showPage('auth')">&#x1f511; Вход</button>
     <button onclick="showPage('shops')">&#x1f3ea; Магазины</button>
     <button onclick="showPage('purchases')">&#x1f4cb; Покупки</button>
+    <button onclick="showPage('files')">&#x1f4c2; Файлы</button>
   </nav>
 
   <!-- AUTH -->
@@ -79,8 +100,19 @@
   <div class="page" id="page-shops">
     <h2>Магазины</h2>
     <div class="shop-tabs" id="shop-tabs">загрузка...</div>
-    <div id="shop-products"></div>
-    <div id="order-msg"></div>
+    <div class="shop-layout">
+      <div class="shop-main">
+        <div id="shop-products"></div>
+        <div id="order-msg"></div>
+      </div>
+      <div class="cart-panel" id="cart-panel">
+        <h3>&#x1f6d2; Корзина</h3>
+        <div id="cart-items"><div style="color:#555;font-size:12px">Корзина пуста</div></div>
+        <div class="cart-total" id="cart-total"></div>
+        <button class="btn green" style="width:100%;margin-top:10px" onclick="checkoutCart()">Оформить заказ</button>
+        <button class="btn danger" style="width:100%;margin-top:6px;font-size:12px;padding:4px" onclick="clearCart()">Очистить</button>
+      </div>
+    </div>
   </div>
 
   <!-- PURCHASES -->
@@ -91,6 +123,26 @@
     </div>
     <div id="purchases-list">загрузка...</div>
   </div>
+
+  <!-- FILES -->
+  <div class="page" id="page-files">
+    <h2>Файловое хранилище</h2>
+    <div class="card">
+      <h3>Загрузить файл</h3>
+      <div class="upload-area" onclick="document.getElementById('file-input').click()">
+        &#x1f4e4; Нажмите для выбора файла
+      </div>
+      <input type="file" id="file-input" style="display:none" onchange="uploadFile(this)" />
+      <div id="upload-msg"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Загруженные файлы</h3>
+        <button class="btn sm" onclick="loadFiles()">&#x21bb; Обновить</button>
+      </div>
+      <div id="files-list" style="margin-top:10px"><div style="color:#555">Загрузка...</div></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -98,21 +150,25 @@
   let token = '';
   let currentUser = null;
   let currentShopId = null;
+  let currentProducts = [];
   let shops = [];
+  const cart = {};
+
+  const NAV_MAP = { auth: 0, shops: 1, purchases: 2, files: 3 };
 
   function showPage(name) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
-    const btns = document.querySelectorAll('nav button');
-    const map = { auth: 0, shops: 1, purchases: 2 };
-    btns[map[name]].classList.add('active');
-    if (name === 'shops') loadShops();
+    document.querySelectorAll('nav button')[NAV_MAP[name]].classList.add('active');
+    if (name === 'shops')     loadShops();
     if (name === 'purchases') loadPurchases();
+    if (name === 'files')     loadFiles();
   }
 
   function msg(id, text, ok) {
     const el = document.getElementById(id);
+    if (!el) return;
     el.className = 'msg ' + (ok ? 'ok' : 'err');
     el.textContent = text;
   }
@@ -125,6 +181,7 @@
     return { status: res.status, json };
   }
 
+  // ── AUTH ──────────────────────────────────────────────────
   async function doLogin() {
     const username = document.getElementById('login-user').value.trim();
     const password = document.getElementById('login-pass').value;
@@ -133,7 +190,7 @@
     if (status === 200 && json.result?.token) {
       token = json.result.token;
       currentUser = { id: json.result.id, username };
-      document.getElementById('user-info').textContent = '&#x1f464; ' + username;
+      document.getElementById('user-info').textContent = '\u{1F464} ' + username;
       msg('login-msg', 'Успешно! Добро пожаловать, ' + username, true);
     } else {
       msg('login-msg', 'Ошибка: ' + (json.errors?.[0] || 'неверные данные'), false);
@@ -152,18 +209,16 @@
     }
   }
 
+  // ── SHOPS ─────────────────────────────────────────────────
   async function loadShops() {
     const { status, json } = await api('/shops/', 'GET');
-    if (status !== 200) {
-      document.getElementById('shop-tabs').textContent = 'Ошибка загрузки';
-      return;
-    }
+    if (status !== 200) { document.getElementById('shop-tabs').textContent = 'Ошибка загрузки'; return; }
     shops = json.result || [];
     const tabs = document.getElementById('shop-tabs');
     tabs.innerHTML = shops.map(s =>
       `<div class="shop-tab" onclick="selectShop(${s.id})">${s.name || 'Магазин ' + s.id}</div>`
     ).join('');
-    if (shops.length > 0) selectShop(shops[0].id);
+    if (shops.length) selectShop(shops[0].id);
   }
 
   async function selectShop(shopId) {
@@ -172,43 +227,124 @@
       t.classList.toggle('active', shops[i]?.id === shopId);
     });
     const { status, json } = await api('/shops/' + shopId, 'GET');
+    if (status !== 200) {
+      document.getElementById('shop-products').innerHTML = '<div class="msg err">Ошибка загрузки товаров</div>';
+      return;
+    }
+    currentProducts = json.result?.products || [];
+    renderProducts(currentProducts, shopId);
+  }
+
+  function renderProducts(products, shopId) {
     const container = document.getElementById('shop-products');
-    if (status !== 200) { container.innerHTML = '<div class="msg err">Ошибка загрузки товаров</div>'; return; }
-    const products = json.result?.products || [];
-    if (!products.length) { container.innerHTML = '<div class="card">Нет товаров</div>'; return; }
+    if (!products.length) { container.innerHTML = '<div class="card">Нет товаров в этой категории</div>'; return; }
+
+    const cats = [...new Set(products.map(p => p.category).filter(Boolean))];
+    const filterSel = document.getElementById('category-filter');
+    const currentCat = filterSel ? filterSel.value : '';
+
     container.innerHTML = `
       <div class="card">
-        <h3>Товары</h3>
+        <div class="filter-row">
+          <label>Категория:</label>
+          <select id="category-filter" onchange="applyFilter(${shopId})">
+            <option value="">— Все товары —</option>
+            ${cats.map(c => `<option value="${c}" ${c===currentCat?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
         <table>
-          <tr><th>Название</th><th>Категория</th><th>Цена</th><th>Остаток</th><th>Кол-во</th></tr>
+          <thead><tr><th>Название</th><th>Категория</th><th>Цена</th><th>Остаток</th><th>В корзину</th></tr></thead>
+          <tbody>
           ${products.map(p => `
             <tr>
-              <td>${p.name}</td>
-              <td><span class="tag">${p.category || '—'}</span></td>
+              <td>${escHtml(p.name)}</td>
+              <td><span class="cat-badge">${escHtml(p.category || '—')}</span></td>
               <td>${p.cost} ₽</td>
-              <td>${p.count}</td>
-              <td><input type="number" min="1" max="10" value="1" id="qty-${p.id}" style="width:55px"></td>
+              <td style="color:${p.count < 3 ? '#f44747' : '#6a9955'}">${p.count}</td>
+              <td>
+                <input type="number" min="1" max="${Math.min(p.count,10)}" value="1" id="qty-${p.id}" style="width:50px">
+                <button class="btn sm" onclick="addToCart(${p.id},'${escHtml(p.name)}',${p.cost})">+ Корзина</button>
+              </td>
             </tr>
           `).join('')}
+          </tbody>
         </table>
-        <button class="btn" style="margin-top:12px" onclick="doOrder(${shopId}, [${products.map(p => p.id).join(',')}])">&#x2714; Заказать выбранное</button>
       </div>
     `;
   }
 
-  async function doOrder(shopId, productIds) {
-    if (!token) return msg('order-msg', 'Войдите, чтобы сделать заказ', false);
-    const products = productIds
-      .map(id => ({ productId: id, count: parseInt(document.getElementById('qty-' + id)?.value || '1') }))
-      .filter(p => p.count > 0);
-    const { status, json } = await api('/shops/' + shopId + '/order', 'POST', products, true);
+  async function applyFilter(shopId) {
+    const cat = document.getElementById('category-filter').value;
+    if (!cat) {
+      renderProducts(currentProducts, shopId);
+      return;
+    }
+    const { status, json } = await api('/shops/' + shopId + '/find_by_category', 'POST', { categoryName: cat });
     if (status === 200) {
-      msg('order-msg', 'Заказ оформлен! Товаров: ' + (json.result?.products?.length || 0), true);
-      selectShop(shopId);
+      renderProducts(json.result || [], shopId);
+    }
+  }
+
+  // ── CART ──────────────────────────────────────────────────
+  function addToCart(productId, name, cost) {
+    const qty = parseInt(document.getElementById('qty-' + productId)?.value || '1');
+    if (cart[productId]) {
+      cart[productId].count += qty;
+    } else {
+      cart[productId] = { productId, name, cost, count: qty };
+    }
+    renderCart();
+  }
+
+  function removeFromCart(productId) {
+    delete cart[productId];
+    renderCart();
+  }
+
+  function clearCart() {
+    Object.keys(cart).forEach(k => delete cart[k]);
+    renderCart();
+  }
+
+  function renderCart() {
+    const items = Object.values(cart);
+    const el = document.getElementById('cart-items');
+    const totalEl = document.getElementById('cart-total');
+    if (!items.length) {
+      el.innerHTML = '<div style="color:#555;font-size:12px">Корзина пуста</div>';
+      totalEl.textContent = '';
+      return;
+    }
+    el.innerHTML = items.map(i => `
+      <div class="cart-item">
+        <span class="name" title="${escHtml(i.name)}">${escHtml(i.name)}</span>
+        <span style="color:#888">${i.count}×</span>
+        <span style="color:#dcdcaa">${(i.cost * i.count).toFixed(0)} ₽</span>
+        <button class="btn danger sm" onclick="removeFromCart(${i.productId})" style="padding:2px 6px;margin:0">✕</button>
+      </div>
+    `).join('');
+    const total = items.reduce((s, i) => s + i.cost * i.count, 0);
+    totalEl.innerHTML = `Итого: <span style="color:#dcdcaa">${total.toFixed(2)} ₽</span>`;
+  }
+
+  async function checkoutCart() {
+    if (!token) return msg('order-msg', 'Войдите для оформления заказа', false);
+    if (!currentShopId) return msg('order-msg', 'Выберите магазин', false);
+    const items = Object.values(cart);
+    if (!items.length) return msg('order-msg', 'Корзина пуста', false);
+    const products = items.map(i => ({ productId: i.productId, count: i.count }));
+    const { status, json } = await api('/shops/' + currentShopId + '/order', 'POST', products, true);
+    if (status === 200) {
+      msg('order-msg', 'Заказ оформлен! Товаров: ' + (json.result?.products?.length || items.length), true);
+      clearCart();
+      selectShop(currentShopId);
     } else {
       msg('order-msg', 'Ошибка: ' + (json.errors?.[0] || 'что-то пошло не так'), false);
     }
   }
+
+  // ── PURCHASES ─────────────────────────────────────────────
+  const TXN_TYPES = { 0: 'Наличные', 1: 'Карта' };
 
   async function loadPurchases() {
     if (!token) {
@@ -220,44 +356,127 @@
     if (status !== 200) { container.innerHTML = '<div class="msg err">Ошибка загрузки</div>'; return; }
     const txns = json.result || [];
     if (!txns.length) { container.innerHTML = '<div class="card">Покупок пока нет</div>'; return; }
-    container.innerHTML = txns.map(t => `
+    container.innerHTML = txns.map(t => {
+      const total = (t.products || []).reduce((s, p) => s + p.cost * p.count, 0);
+      return `
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span><b>#${t.id}</b> &nbsp; ${new Date(t.date).toLocaleString('ru')}</span>
           <span>
             <span class="badge ${t.isShopCreate ? 'shop' : 'manual'}">${t.isShopCreate ? 'магазин' : 'вручную'}</span>
             &nbsp;
-            <span class="tag">${t.transactionType === 0 ? 'Тип 0' : 'Тип 1'}</span>
+            <span class="tag">${TXN_TYPES[t.transactionType] ?? ('Тип ' + t.transactionType)}</span>
+            &nbsp;
+            <span style="color:#dcdcaa">${total.toFixed(2)} ₽</span>
           </span>
         </div>
         <table style="margin-top:8px">
-          <tr><th>Товар</th><th>Цена</th><th>Кол-во</th></tr>
-          ${(t.products || []).map(p => `<tr><td>${p.name}</td><td>${p.cost} ₽</td><td>${p.count}</td></tr>`).join('')}
+          <thead><tr><th>Товар</th><th>Цена</th><th>Кол-во</th><th>Сумма</th></tr></thead>
+          <tbody>
+          ${(t.products || []).map(p => `
+            <tr>
+              <td>${escHtml(p.name)}</td>
+              <td>${p.cost} ₽</td>
+              <td>${p.count}</td>
+              <td>${(p.cost * p.count).toFixed(2)} ₽</td>
+            </tr>
+          `).join('')}
+          </tbody>
         </table>
-        ${t.receipt ? `<div style="margin-top:6px;font-size:12px;color:#888">Чек: магазин #${t.receipt.shopId}</div>` : ''}
+        ${t.receipt ? `<div style="margin-top:6px;font-size:12px;color:#888">Чек: магазин #${t.receipt.shopId} · ${t.receipt.count} товаров · ${t.receipt.cost} ₽</div>` : ''}
         ${!t.isShopCreate ? `
           <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-            <span style="font-size:12px">Тип:</span>
-            <select id="type-${t.id}" style="width:80px">
-              <option value="0" ${t.transactionType===0?'selected':''}>0</option>
-              <option value="1" ${t.transactionType===1?'selected':''}>1</option>
+            <span style="font-size:12px;color:#9cdcfe">Тип оплаты:</span>
+            <select id="type-${t.id}" style="width:100px;margin:0">
+              <option value="0" ${t.transactionType===0?'selected':''}>Наличные</option>
+              <option value="1" ${t.transactionType===1?'selected':''}>Карта</option>
             </select>
-            <button class="btn" onclick="updateTxn(${t.id})">Сохранить</button>
+            <button class="btn sm" onclick="updateTxn(${t.id})">Сохранить</button>
           </div>
         ` : ''}
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   async function updateTxn(id) {
     const transactionType = parseInt(document.getElementById('type-' + id).value);
     const { status, json } = await api('/purchases/update', 'PUT', { id, transactionType }, true);
     if (status === 200) {
-      msg('purchases-list', '', true);
       loadPurchases();
     } else {
       alert('Ошибка: ' + (json.errors?.[0] || 'не удалось обновить'));
     }
+  }
+
+  // ── FILES ─────────────────────────────────────────────────
+  async function uploadFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    msg('upload-msg', 'Загрузка...', true);
+    try {
+      const res  = await fetch(API + '/files/upload', { method: 'POST', body: formData });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok) {
+        msg('upload-msg', `Загружен: ${json.fileId}  (${formatSize(json.size)})`, true);
+        input.value = '';
+        loadFiles();
+      } else {
+        msg('upload-msg', 'Ошибка: ' + (json.error || res.status), false);
+      }
+    } catch (e) {
+      msg('upload-msg', 'Ошибка соединения', false);
+    }
+  }
+
+  async function loadFiles() {
+    const container = document.getElementById('files-list');
+    container.innerHTML = '<div style="color:#555">Загрузка...</div>';
+    try {
+      const res  = await fetch(API + '/files/');
+      const json = await res.json().catch(() => []);
+      if (!res.ok || !Array.isArray(json)) {
+        container.innerHTML = '<div class="msg err">Ошибка загрузки списка файлов</div>';
+        return;
+      }
+      if (!json.length) {
+        container.innerHTML = '<div style="color:#555;font-size:12px">Файлов нет</div>';
+        return;
+      }
+      container.innerHTML = json.map(f => `
+        <div class="file-row">
+          <span class="fname" title="${escHtml(f.fileId)}">${escHtml(f.fileId)}</span>
+          <span style="color:#888">${formatSize(f.size)}</span>
+          <a href="${API}/files/${encodeURIComponent(f.fileId)}" download="${escHtml(f.fileId)}"
+             style="color:#569cd6;text-decoration:none">
+            <button class="btn sm">&#x2913; Скачать</button>
+          </a>
+          <button class="btn sm danger" onclick="deleteFile('${escHtml(f.fileId)}')">✕</button>
+        </div>
+      `).join('');
+    } catch (e) {
+      container.innerHTML = '<div class="msg err">Ошибка соединения</div>';
+    }
+  }
+
+  async function deleteFile(fileId) {
+    if (!confirm('Удалить файл ' + fileId + '?')) return;
+    const res = await fetch(API + '/files/' + encodeURIComponent(fileId), { method: 'DELETE' });
+    if (res.ok || res.status === 204) loadFiles();
+    else alert('Не удалось удалить файл');
+  }
+
+  // ── UTILS ─────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatSize(bytes) {
+    if (bytes == null) return '';
+    if (bytes < 1024)       return bytes + ' Б';
+    if (bytes < 1048576)    return (bytes / 1024).toFixed(1) + ' КБ';
+    return (bytes / 1048576).toFixed(1) + ' МБ';
   }
 </script>
 </body>

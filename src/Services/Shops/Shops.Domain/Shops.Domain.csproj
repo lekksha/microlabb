@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\RtuItLab.Infrastructure\RtuItLab.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\VegasShop.Infrastructure\VegasShop.Infrastructure.csproj" />
     <ProjectReference Include="..\Shops.DAL\Shops.DAL.csproj" />
   </ItemGroup>
 

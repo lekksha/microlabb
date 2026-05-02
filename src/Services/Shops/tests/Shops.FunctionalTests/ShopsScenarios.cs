@@ -1,14 +1,14 @@
 ﻿using Identity.FunctionalTests.Base;
 using Microsoft.AspNetCore.TestHost;
-using RtuItLab.Infrastructure.Models.Identity;
-using RtuItLab.Infrastructure.Models.Shops;
+using VegasShop.Infrastructure.Models.Identity;
+using VegasShop.Infrastructure.Models.Shops;
 using Shops.FunctionalTests.Base;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using RtuItLab.Infrastructure.Models;
+using VegasShop.Infrastructure.Models;
 using Xunit;
 
 namespace Shops.FunctionalTests

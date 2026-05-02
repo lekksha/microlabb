@@ -1,4 +1,4 @@
-﻿using RtuItLab.Infrastructure.Models.Shops;
+﻿using VegasShop.Infrastructure.Models.Shops;
 using Shops.DAL.ContextModels;
 
 namespace Shops.Domain.Helpers
