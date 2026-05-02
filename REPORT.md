@@ -23,7 +23,7 @@
 
 ### 2.1 Балансировщик нагрузки (Nginx)
 
-Два идентичных контейнера `nginx1` (порт 8081) и `nginx2` (порт 8082) обслуживают клиентские запросы и перенаправляют их к API-шлюзу. Наличие двух экземпляров обеспечивает горизонтальное масштабирование на уровне представления.
+Перед двумя инстансами фронтенда установлен отдельный Nginx-балансировщик (`lb`, порт 80). Он распределяет входящий трафик round-robin между `nginx1` и `nginx2`, перенаправляет запрос к соседнему апстриму при ошибках 5xx/таймаутах (`proxy_next_upstream`) и предоставляет собственный health-endpoint `/lb/health`. Контейнеры `nginx1` (8081) и `nginx2` (8082) остаются доступными напрямую для отладки.
 
 ### 2.2 Фронтенд (Frontend)
 
@@ -158,8 +158,9 @@ docker-compose up --build
 ### Доступ к сервисам
 | Ресурс | URL |
 |---|---|
-| Фронтенд (инстанс 1) | http://localhost:8081 |
-| Фронтенд (инстанс 2) | http://localhost:8082 |
+| **Фронтенд (через LB)** | **http://localhost** |
+| Фронтенд (инстанс 1, прямой доступ) | http://localhost:8081 |
+| Фронтенд (инстанс 2, прямой доступ) | http://localhost:8082 |
 | API Gateway | http://localhost:5000 |
 | Swagger Identity | http://localhost:7001/swagger |
 | Swagger Purchases | http://localhost:7002/swagger |
@@ -213,7 +214,23 @@ src/
 - Файлы хранятся в Docker-volume `files_data` по пути `/app/uploads`
 - Маршруты добавлены в `ocelot.json`; сервис зарегистрирован в `docker-compose.yml`
 
-### 8.3 Улучшение фронтенда
+### 8.3 Рефакторинг Files.API
+Контроллер сделан тонким — вся логика хранения вынесена в сервисный слой:
+- `IFileStorageService` / `LocalFileStorageService` — абстракция и реализация поверх локальной ФС
+- `FileStorageOptions` через паттерн `IOptions<>` (секция `FileStorage` в `appsettings.json`, обратная совместимость со старым ключом `StoragePath`)
+- Структурированное логирование через `ILogger<>`
+- DTO-модели `UploadResult` / `FileMetadata` (вместо анонимных объектов)
+- Защита от **path traversal** в `TryOpenRead`/`Delete` (отбрасывает `..`, `/`, `\` и пр.)
+- Лимит размера файла (`RequestSizeLimit` + проверка в сервисе)
+
+### 8.4 Балансировщик нагрузки
+Добавлен новый сервис `lb` (Nginx 1.25-alpine) перед `nginx1`/`nginx2`:
+- `src/lb/nginx.conf` — round-robin upstream + `proxy_next_upstream` для отказоустойчивости
+- `src/lb/Dockerfile` с healthcheck
+- Регистрация в `docker-compose.yml` (порт 80)
+- Полностью соответствует требованию архитектуры №1 — «Load-balancing web server for accepting connections»
+
+### 8.5 Улучшение фронтенда
 - Переименован в **VegasShop**
 - Добавлена **корзина**: кнопка «В корзину» у каждого товара, боковая панель с позициями, итоговой суммой и оформлением заказа
 - Добавлен **фильтр по категории** товаров (вызывает `/api/shops/{id}/find_by_category`)
@@ -232,9 +249,11 @@ src/
 |---|---|---|
 | `Purchases.UnitTests` | Unit (xUnit + MSTest, in-memory EF) | `PurchasesService`: добавление, получение, обновление транзакций |
 | `Shops.UnitTests` | Unit (xUnit + MSTest, in-memory EF) | `ShopsService`: покупки, пополнение склада, фильтрация |
+| `Files.UnitTests` | Unit (xUnit) | `LocalFileStorageService`: сохранение, чтение, список, удаление, проверка лимитов и path-traversal |
 | `Identity.FunctionalTests` | Функциональные (TestServer) | Регистрация, вход, получение профиля |
 | `Purchases.FunctionalTests` | Функциональные (TestServer) | Получение истории, добавление, обновление транзакции |
 | `Shops.FunctionalTests` | Функциональные (TestServer) | Просмотр магазинов, фильтрация, оформление заказа |
+| `Files.FunctionalTests` | Функциональные (TestServer) | Полный жизненный цикл API: upload/download/list/delete, проверка content-type, защита от path-traversal |
 
 Тесты запускаются командой:
 ```bash

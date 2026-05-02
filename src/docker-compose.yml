@@ -220,6 +220,27 @@ services:
     networks:
       - frontend
 
+  # Балансировщик нагрузки перед nginx1/nginx2 — единая точка входа
+  lb:
+    image: microlabb/lb
+    build:
+      context: ./lb
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - nginx1
+      - nginx2
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/lb/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - frontend
+
 volumes:
   sqlserver_data:
   files_data:

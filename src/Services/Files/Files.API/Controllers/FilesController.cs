@@ -1,9 +1,9 @@
+using Files.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Files.API.Controllers
@@ -12,85 +12,52 @@ namespace Files.API.Controllers
     [Route("api/[controller]")]
     public class FilesController : ControllerBase
     {
-        private readonly string _storageDir;
+        private readonly IFileStorageService     _storage;
+        private readonly ILogger<FilesController> _logger;
 
-        public FilesController(IConfiguration config)
+        public FilesController(IFileStorageService storage, ILogger<FilesController> logger)
         {
-            _storageDir = config["StoragePath"] ?? "/app/uploads";
-            Directory.CreateDirectory(_storageDir);
+            _storage = storage;
+            _logger  = logger;
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> Upload(IFormFile file)
+        [RequestSizeLimit(50 * 1024 * 1024)]
+        public async Task<IActionResult> Upload(IFormFile file, CancellationToken ct)
         {
             if (file == null || file.Length == 0)
                 return BadRequest(new { error = "No file provided" });
 
-            var ext      = Path.GetExtension(file.FileName);
-            var fileId   = Guid.NewGuid().ToString("N") + ext;
-            var filePath = Path.Combine(_storageDir, fileId);
-
-            using var stream = System.IO.File.Create(filePath);
-            await file.CopyToAsync(stream);
-
-            return Ok(new { fileId, originalName = file.FileName, size = file.Length });
+            try
+            {
+                var result = await _storage.SaveAsync(file, ct);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger?.LogWarning(ex, "File upload rejected");
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpGet("{fileId}")]
         public IActionResult Download(string fileId)
         {
-            var filePath = Path.Combine(_storageDir, fileId);
-            if (!System.IO.File.Exists(filePath))
+            if (!_storage.TryOpenRead(fileId, out var stream, out var contentType))
                 return NotFound(new { error = "File not found" });
 
-            var stream      = System.IO.File.OpenRead(filePath);
-            var contentType = GetContentType(fileId);
             return File(stream, contentType, fileId);
         }
 
         [HttpGet]
-        public IActionResult List()
-        {
-            if (!Directory.Exists(_storageDir))
-                return Ok(Array.Empty<object>());
-
-            var files = Directory.GetFiles(_storageDir)
-                .Select(f => new
-                {
-                    fileId    = Path.GetFileName(f),
-                    size      = new FileInfo(f).Length,
-                    createdAt = new FileInfo(f).CreationTimeUtc
-                })
-                .OrderByDescending(f => f.createdAt);
-
-            return Ok(files);
-        }
+        public IActionResult List() => Ok(_storage.List());
 
         [HttpDelete("{fileId}")]
         public IActionResult Delete(string fileId)
         {
-            var filePath = Path.Combine(_storageDir, fileId);
-            if (!System.IO.File.Exists(filePath))
-                return NotFound(new { error = "File not found" });
-
-            System.IO.File.Delete(filePath);
-            return NoContent();
-        }
-
-        private static string GetContentType(string fileName)
-        {
-            var ext = Path.GetExtension(fileName).ToLowerInvariant();
-            return ext switch
-            {
-                ".jpg"  => "image/jpeg",
-                ".jpeg" => "image/jpeg",
-                ".png"  => "image/png",
-                ".gif"  => "image/gif",
-                ".pdf"  => "application/pdf",
-                ".txt"  => "text/plain",
-                ".json" => "application/json",
-                _       => "application/octet-stream"
-            };
+            return _storage.Delete(fileId)
+                ? (IActionResult)NoContent()
+                : NotFound(new { error = "File not found" });
         }
     }
 }
